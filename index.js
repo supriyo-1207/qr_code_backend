@@ -3,6 +3,7 @@ const express = require('express');
 const { PORT } = require('./config/env');
 const authRoute = require('./routes/authRoute'); 
 const connectDB = require('./config/DB');
+const cookieParser = require('cookie-parser');
 const cors = require('cors')
 
 // Create an Express app
@@ -15,6 +16,7 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+app.use(cookieParser());
 
 // Connect to the database
 connectDB();

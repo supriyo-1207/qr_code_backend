@@ -3,6 +3,7 @@ dotenv.config();
 
 module.exports={
     PORT:process.env.PORT,
-    MONGO_URI:process.env.MONGO_URI
+    MONGO_URI:process.env.MONGO_URI,
+    jwt_Secret:process.env.JWT_SECRET
    
 }
