@@ -12,7 +12,7 @@ const app = express();
 // Enable CORS
 app.use(cors())
 app.use(cors({
-  origin: "http://localhost:5173" || "https://qr-code-generator-eight-henna.vercel.app/",
+  origin: "http://localhost:5173" || "https://qr-code-generator-eight-henna.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
