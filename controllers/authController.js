@@ -1,36 +1,43 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/authModel');
+const sendMail = require('../services/sendMail');
 require('dotenv').config();
 
 const generateToken = (userId) => {
     return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
+// Common function to set HTTP-only cookie
+const setCookie = (res, token) => {
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.COOKIE_SECURE === 'true', // Use ENV variable for security settings
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+};
+
 // Sign-in (Login)
 async function signin(req, res) {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(400).json({ message: 'Invalid password' });
         }
 
-        // Generate JWT token
         const token = generateToken(user._id);
-
-        // Store token in HTTP-only cookie
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Secure in production
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
+        setCookie(res, token);
 
         res.status(200).json({
             message: 'Login successful',
@@ -45,30 +52,36 @@ async function signin(req, res) {
 // Sign-up (Register)
 async function signup(req, res) {
     const { fullName, email, password } = req.body;
-    
+
     if (!fullName || !email || !password) {
         return res.status(400).json({ message: 'All fields are required' });
     }
+    if (password.length < 6) {
+        return res.status(400).json({ message: 'Password should be at least 6 characters long' });
+    }
 
     try {
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = new User({ fullName, email, password });
+        const user = new User({ fullName, email: email.toLowerCase(), password });
         await user.save();
 
-        // Generate JWT token
-        const token = generateToken(user._id);
+        try {
+            await sendMail(
+                email,
+                "Welcome to Our App!",
+                `Hello ${fullName}, Welcome to our app.`,
+                `<p>Hello <b>${fullName}</b>, welcome to our app!</p>`
+            );
+        } catch (emailError) {
+            console.error("Email sending failed:", emailError);
+        }
 
-        // Store token in HTTP-only cookie
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        const token = generateToken(user._id);
+        setCookie(res, token);
 
         res.status(201).json({
             message: 'User registered successfully',
