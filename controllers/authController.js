@@ -71,11 +71,22 @@ async function signup(req, res) {
 
         try {
             await sendMail(
-                email,
-                "Welcome to Our App!",
-                `Hello ${fullName}, Welcome to our app.`,
-                `<p>Hello <b>${fullName}</b>, welcome to our app!</p>`
-            );
+    email,
+    "Welcome to QR Code Generator!",
+    `Hello ${fullName}, Welcome to QR Code Generator.`,
+    `<p>Hi <b>${fullName}</b>,</p>
+    <p>Welcome to <b>QR Code Generator</b>! 🚀 You now have unlimited access to generate QR codes for your business, personal use, and more.</p>
+    <p>Here’s what you can do:</p>
+    <ul>
+      <li>✔️ Generate unlimited QR codes</li>
+      <li>✔️ Customize your QR designs</li>
+    </ul>
+    <p>Start generating now: <a href="https://qr-code-generator-eight-henna.vercel.app" target="_blank">Generate QR Code</a></p>
+    <p>Happy scanning!<br>
+    <b>Best regards,</b><br>
+    <b>Supriyo Maity</b></p>`
+);
+
         } catch (emailError) {
             console.error("Email sending failed:", emailError);
         }
