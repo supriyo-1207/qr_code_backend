@@ -6,8 +6,8 @@ const { GMAIL_USER, GMAIL_PASSWORD } = require("../config/env");
 // Configure Nodemailer Transporter
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465, // Use SSL (secure)
-  secure: true, // true for port 465, false for 587
+  port: 587, // Use SSL (secure)
+  secure: false, // true for port 465, false for 587
   auth: {
     user: GMAIL_USER, // Your Gmail address
     pass: GMAIL_PASSWORD, // Use an App Password if 2FA is enabled
